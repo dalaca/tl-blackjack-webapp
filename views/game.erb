@@ -11,7 +11,7 @@
     			<% session[:dealer_cards].each do |card| %>
     			<%= card.to_s %>
     			<% end %>
-    			<p> Dealer has: <%= calculate_total(session[:player_cards]) %> </p>
+    			<p> Dealer has: <%= calculate_total(session[:dealer_cards]) %> </p>
     		</div>
 				
 				

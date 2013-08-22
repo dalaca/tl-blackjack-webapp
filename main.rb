@@ -56,7 +56,7 @@ post '/game/player/hit' do
 	if calculate_total(session[:player_cards]) > 21
 		@error = "Sorry, you busted"
 	end
-	@show_hit_or_stay_buttons = false
+	@show_hit_or_stay_buttons = true
 	erb :game
 end
 
