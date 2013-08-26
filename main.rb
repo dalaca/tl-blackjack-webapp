@@ -22,6 +22,30 @@ helpers do
 		
 		total
 	end
+
+	def card_image(card)
+	suit = case card[0]
+			when 'H' then 'hearts'
+			when 'D' then 'diamonds'
+			when 'S' then 'spades'
+			when 'C' then 'clubs'
+		end
+	
+		if card[1].to_i == 0
+			if card[1] == 'K'
+				rank = 'king'
+			elsif card[1] == 'Q'
+				rank = 'queen'
+			elsif card[1] == 'J'
+				rank = 'jack'
+			elsif card[1] == 'A'
+				rank = 'ace'
+			end
+		else
+			rank = card[1].to_i
+		end
+			"<img src='/images/cards/#{suit}_#{rank}.jpg'"
+	end
 end
 
 before do
@@ -54,14 +78,14 @@ end
 post '/game/player/hit' do
 	session[:player_cards] << session[:deck].pop
 	if calculate_total(session[:player_cards]) > 21
-		@error = "Sorry, you busted"
+		@error = "Sorry, #{session[:player_name]} busted"
 	end
 	@show_hit_or_stay_buttons = true
 	erb :game
 end
 
 post '/game/player/stay' do
-	@success = "You have chosen to stay"
+	@success = "#{session[:player_name]} have chosen to stay"
 	@show_hit_or_stay_buttons = false
 erb :game
 end

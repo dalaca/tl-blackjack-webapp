@@ -10,7 +10,7 @@
    				<h3> Dealer's Cards </h3>
     			<% session[:dealer_cards].each do |card| %>
     			<%= card.to_s %>
-    			<% end %>
+          <% end %>
     			<p> Dealer has: <%= calculate_total(session[:dealer_cards]) %> </p>
     		</div>
 				
@@ -19,7 +19,7 @@
 				<div class="well">
 					<h3> <%= session[:player_name] %>'s Cards </h3>
 						<% session[:player_cards].each do |card| %>
-    				<%= card.to_s %>
+    				<%= card_image(card) %>
     			<% end %>
     		</br>
     			<p><%= session[:player_name] %> has: <%= calculate_total(session[:player_cards]) %> </p>
