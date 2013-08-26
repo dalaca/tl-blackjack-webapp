@@ -44,7 +44,7 @@ helpers do
 		else
 			rank = card[1].to_i
 		end
-			"<img src='/images/cards/#{suit}_#{rank}.jpg'"
+			"<img src='/images/cards/#{suit}_#{rank}.jpg' class='card_image'>"
 	end
 end
 
@@ -57,6 +57,11 @@ get '/' do
 end
 
 post '/set_name' do
+	if params[:player_name].empty?
+		@error = "Name is Required"
+		halt erb(:name)
+	end
+
 	session[:player_name] = params[:player_name]
 	redirect '/game'
 end
@@ -77,10 +82,15 @@ end
 
 post '/game/player/hit' do
 	session[:player_cards] << session[:deck].pop
-	if calculate_total(session[:player_cards]) > 21
+	player_total = calculate_total(session[:player_cards])
+	if player_total > 21
 		@error = "Sorry, #{session[:player_name]} busted"
+		@show_hit_or_stay_buttons = false
+	elsif player_total == 21
+		@success = "#{session[:player_name]} hit BlackJack!"
+		@show_hit_or_stay_buttons = false
 	end
-	@show_hit_or_stay_buttons = true
+	
 	erb :game
 end
 
