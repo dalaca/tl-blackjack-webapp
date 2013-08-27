@@ -4,6 +4,7 @@ require 'sinatra'
 set :sessions, true
 BLACKJACK_AMOUNT = 21
 DEALER_MIN_HIT = 17
+INITIAL_POT = 500
 helpers do
 	def calculate_total(cards)
 		arr = cards.map{|element| element[1]}
@@ -51,16 +52,19 @@ helpers do
 	def winner!(msg)
 		@play_again = true
 		@success = "<strong> Congratulations #{session[:player_name]}!</strong> #{msg}"
+		session[:player_pot] = session[:player_pot] + session[:player_bet].to_i
 	end
 
 	def loser!(msg)
 		@play_again = true
 		@error = "<strong>Sorry #{session[:player_name]},</strong>#{msg}" 
+		session[:player_pot] = session[:player_pot] - session[:player_bet].to_i
 	end
 
 	def tie!(msg)
 		@play_again = true
 		@success = "<strong>Meh #{session[:player_name]} Tied!</strong> #{msg}"
+		session[:player_pot] = session[:player_pot]
 	end
 end
 
@@ -70,6 +74,7 @@ before do
 end
 
 get '/' do
+	session[:player_pot] = INITIAL_POT
 	erb :name
 end
 
@@ -80,7 +85,25 @@ post '/set_name' do
 	end
 
 	session[:player_name] = params[:player_name]
-	redirect '/game'
+	redirect '/bet'
+end
+
+get '/bet' do
+	session[:player_bet] = nil
+	erb :set_bet
+end
+
+post '/bet' do
+	if params[:bet_amount].nil? || params[:bet_amount].to_i == 0 
+		@error = "Make a bet"
+		halt erb(:set_bet)
+	elsif params[:bet_amount].to_i > session[:player_pot]
+		@error = " bet amount can't be greater than what you have"
+		halt erb(:set_bet)
+	else
+		session[:player_bet] = params[:bet_amount]
+		redirect '/game'
+	end
 end
 
 get '/game' do
@@ -154,7 +177,7 @@ dealer_total = calculate_total(session[:dealer_cards])
 	if dealer_total > player_total
 		loser!(" #{session[:player_name]} stayed at #{player_total} and dealer had #{dealer_total}, Dealer wins")
 	elsif dealer_total < player_total
-		winner!(" #{session[:player_name]} stayed at #{player_total} and dealer had #{dealer_total}, Dealer wins")
+		winner!(" #{session[:player_name]} stayed at #{player_total} and dealer had #{dealer_total}, you win")
 	elsif dealer_total == player_total
 		tie!("It's a tie. Both have #{player_total}")
 	end

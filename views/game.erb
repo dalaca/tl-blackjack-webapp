@@ -6,7 +6,7 @@
   <p>
   <% if @play_again %>
     <strong>Play again?</strong>
-    <a href="/game" class="btn btn-primary">Yes</a>
+    <a href="/bet" class="btn btn-primary">Yes</a>
     <a href="/game_over" class="btn btn-warning"> No</a>
     <% end %>
   </p>
@@ -33,7 +33,10 @@
 				<% session[:player_cards].each do |card| %>
       		<%= card_image(card) %>
     		<% end %>
-    	</br>
+          <h5>
+           <%= session[:player_name] %> has <%= session[:player_pot] %> and bet <%= session[:player_bet] %> this round.
+    	   </h5>
+      </br>
     	 <p><%= session[:player_name] %> has: <%= calculate_total(session[:player_cards]) %> </p>
     </div>
     
