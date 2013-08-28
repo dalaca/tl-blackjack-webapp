@@ -131,6 +131,7 @@ post '/game/player/hit' do
 	elsif player_total == BLACKJACK_AMOUNT
 		winner!("Hit BlackJack!")
 		@show_hit_or_stay_buttons = false
+		redirect '/game/dealer'
 	end
 		
 	erb :game
