@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'sinatra'
+require 'sinatra/reloader'
 
 set :sessions, true
 BLACKJACK_AMOUNT = 21
@@ -51,19 +52,19 @@ helpers do
 
 	def winner!(msg)
 		@play_again = true
-		@success = "<strong> Congratulations #{session[:player_name]}!</strong> #{msg}"
+		@winner = "<strong> Congratulations #{session[:player_name]}!</strong> #{msg}"
 		session[:player_pot] = session[:player_pot] + session[:player_bet].to_i
 	end
 
 	def loser!(msg)
 		@play_again = true
-		@error = "<strong>Sorry #{session[:player_name]},</strong>#{msg}" 
+		@loser = "<strong>Sorry #{session[:player_name]},</strong>#{msg}" 
 		session[:player_pot] = session[:player_pot] - session[:player_bet].to_i
 	end
 
 	def tie!(msg)
 		@play_again = true
-		@success = "<strong>Meh #{session[:player_name]} Tied!</strong> #{msg}"
+		@winner = "<strong>Meh #{session[:player_name]} Tied!</strong> #{msg}"
 		session[:player_pot] = session[:player_pot]
 	end
 end
@@ -80,7 +81,7 @@ end
 
 post '/set_name' do
 	if params[:player_name].empty?
-		@error = "Name is Required"
+		@loser = "Name is Required"
 		halt erb(:name)
 	end
 
@@ -95,10 +96,10 @@ end
 
 post '/bet' do
 	if params[:bet_amount].nil? || params[:bet_amount].to_i == 0 
-		@error = "Make a bet"
+		@loser = "Make a bet"
 		halt erb(:set_bet)
 	elsif params[:bet_amount].to_i > session[:player_pot]
-		@error = " bet amount can't be greater than what you have"
+		@loser = " bet amount can't be greater than what you have"
 		halt erb(:set_bet)
 	else
 		session[:player_bet] = params[:bet_amount]
@@ -134,11 +135,11 @@ post '/game/player/hit' do
 		redirect '/game/dealer'
 	end
 		
-	erb :game
+	erb :game, layout: false
 end
 
 post '/game/player/stay' do
-	@success = "#{session[:player_name]} have chosen to stay"
+	@winner = "#{session[:player_name]} have chosen to stay"
 	@show_hit_or_stay_buttons = false
 	if calculate_total(session[:player_cards]) == BLACKJACK_AMOUNT
 		winner!("hit BlackJack!")
@@ -162,7 +163,7 @@ get '/game/dealer' do
 		#dealer hits
 		
 	end
-	erb :game
+	erb :game, layout: false
 end
 
 post '/game/dealer/hit' do
@@ -182,7 +183,7 @@ dealer_total = calculate_total(session[:dealer_cards])
 	elsif dealer_total == player_total
 		tie!("It's a tie. Both have #{player_total}")
 	end
-	erb :game
+	erb :game, layout: false
 end
 
 get '/game_over' do
